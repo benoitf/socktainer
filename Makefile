@@ -54,21 +54,19 @@ version:
 	@echo "Docker Engine API Min version: $(DOCKER_ENGINE_API_MIN_VERSION)"
 	@echo "Docker Engine API Max version: $(DOCKER_ENGINE_API_MAX_VERSION)"
 
-DNS_FORWARDER_DIR := $(ROOT_DIR)/Sources/dns-forwarder
+DNS_FORWARDER_DIR := $(ROOT_DIR)/Sources/dns-forwarder-swift
 DNS_RESOURCE := $(ROOT_DIR)/Sources/socktainer/Resources/socktainer-dns-embedded.tar.gz
+CONTAINER_ENGINE ?= $(shell command -v podman 2>/dev/null || echo docker)
 
 .PHONY: build-dns
 build-dns:
-	@echo "Building embedded DNS forwarder (requires Go and a running Docker daemon)..."
+	@echo "Building embedded DNS forwarder (requires a container engine)..."
 	@cd $(DNS_FORWARDER_DIR) && \
-	  GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -ldflags='-s -w' -o dns-forwarder . && \
-	  echo "  Binary built: $$(du -sh dns-forwarder | cut -f1)"
-	@echo "  Building OCI image and exporting tarball..."
-	@cd $(DNS_FORWARDER_DIR) && \
-	  docker buildx build --platform linux/arm64 --tag socktainer-dns:embedded --load . && \
-	  docker save socktainer-dns:embedded | gzip > $(DNS_RESOURCE) && \
+	  $(CONTAINER_ENGINE) build --platform linux/arm64 --tag socktainer-dns:embedded . && \
+	  echo "  OCI image built"
+	@$(CONTAINER_ENGINE) save socktainer-dns:embedded | gzip > $(DNS_RESOURCE) && \
 	  echo "  Resource built: $$(du -sh $(DNS_RESOURCE) | cut -f1)"
-	@echo "  Done. Commit Sources/dns-forwarder/dns-forwarder and Sources/socktainer/Resources/socktainer-dns-embedded.tar.gz"
+	@echo "  Done. Commit Sources/socktainer/Resources/socktainer-dns-embedded.tar.gz"
 
 .PHONY: help
 help:
@@ -78,7 +76,7 @@ help:
 	@echo "  release          - Build in release mode"
 	@echo "  test             - Run tests"
 	@echo "  fmt              - Format source code"
-	@echo "  build-dns        - Rebuild embedded DNS forwarder binary + OCI tarball"
+	@echo "  build-dns        - Rebuild embedded DNS forwarder (requires Docker)"
 	@echo "  clean            - Clean build artifacts"
 	@echo "  version          - Show version information"
 	@echo "  installer        - Build unsigned macOS .pkg installer"
