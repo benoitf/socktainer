@@ -7,6 +7,10 @@
 [![License](https://img.shields.io/github/license/socktainer/socktainer)](LICENSE)
 [![Discord](https://img.shields.io/badge/discord-join-5865F2?logo=discord&logoColor=white)](https://discord.gg/Pw9VWKcUEt)
 
+<p align="center">
+  <img src="docs/assets/socktainer-demo.gif" alt="Socktainer demo: the Docker CLI and Docker Compose running containers on Apple container" width="800">
+</p>
+
 > [!NOTE]
 > `socktainer` maintains to be compatible with [Docker Engine API v1.51](https://github.com/moby/moby/blob/v28.5.2/api/swagger.yaml).
 >
